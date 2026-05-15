@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../controllers/profile_controller.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -63,6 +65,25 @@ class ProfilePage extends StatelessWidget {
               _buildInfoCard(Icons.phone_rounded, "NOMOR TELEPON", user.nomorTelpon),
               const SizedBox(height: 12),
               _buildInfoCard(Icons.location_on_rounded, "ALAMAT", user.alamat),
+              const SizedBox(height: 12),
+
+              Obx(() => _buildInfoCard(
+                Icons.gps_fixed,
+                "KOORDINAT",
+                profileC.koordinat.value.isEmpty
+                    ? "Mengambil lokasi..."
+                    : profileC.koordinat.value,
+              )),
+
+              const SizedBox(height: 12),
+
+              Obx(() => _buildInfoCard(
+                Icons.store_mall_directory,
+                "LOKASI OUTLET",
+                profileC.lokasiOutlet.value.isEmpty
+                    ? "Mengambil lokasi..."
+                    : profileC.lokasiOutlet.value,
+              )),
 
               const SizedBox(height: 35),
 

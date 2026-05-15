@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_fonts/google_fonts.dart'; 
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 import '../models/staff_model.dart';
 import '../pages/login_page.dart';
 
@@ -46,8 +48,14 @@ class ProfileController extends GetxController {
   final supabase = Supabase.instance.client;
   var isLoading = true.obs;
   var currentUser = Rxn<StaffModel>();
+  var koordinat = "".obs;
+  var lokasiOutlet = "".obs;
 
-  @override void onInit() { fetchProfile(); super.onInit(); }
+  @override void onInit() { 
+    super.onInit();
+    fetchProfile();
+    getCurrentLocation();
+    }
 
   void _showLoadingOverlay() {
     Get.dialog(
@@ -199,6 +207,53 @@ class ProfileController extends GetxController {
     );
   }
 
+  Future<void> getCurrentLocation() async {
+  try {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+
+    if (!serviceEnabled) {
+      lokasiOutlet.value = "GPS tidak aktif";
+      return;
+    }
+
+    permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+
+    if (permission == LocationPermission.denied ||
+        permission == LocationPermission.deniedForever) {
+      lokasiOutlet.value = "Izin lokasi ditolak";
+      return;
+    }
+
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+
+    koordinat.value =
+        "${position.latitude}, ${position.longitude}";
+
+    List<Placemark> placemarks = await placemarkFromCoordinates(
+      position.latitude,
+      position.longitude,
+    );
+
+    if (placemarks.isNotEmpty) {
+      Placemark place = placemarks.first;
+
+      lokasiOutlet.value =
+          "${place.locality}, ${place.administrativeArea}";
+    }
+  } catch (e) {
+    lokasiOutlet.value = "Gagal mengambil lokasi";
+  }
+}
+
   Future<void> fetchProfile() async {
     try {
       isLoading(true);
@@ -220,7 +275,6 @@ class ProfileController extends GetxController {
     }
   }
 
-  // --- ALUR GANTI PASSWORD BARU ---
   Future<void> gantiPasswordPribadi(String passwordBaru) async {
     Get.back();
     _showLoadingOverlay();

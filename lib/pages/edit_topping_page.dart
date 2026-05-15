@@ -42,20 +42,22 @@ class _EditToppingPageState extends State<EditToppingPage> {
     isTakTerbatas = toppingData.takTerbatas; 
   }
 
-  Future<void> pickImage() async {
+  Future<void> pickImage(ImageSource source) async {
     final ImagePicker picker = ImagePicker();
+
     final XFile? image = await picker.pickImage(
-      source: ImageSource.gallery,
+      source: source,
       imageQuality: 80,
     );
 
     if (image != null) {
       if (kIsWeb) {
         var f = await image.readAsBytes();
+
         setState(() {
           webImage = f;
           fotoBaru = image;
-          hapusFotoLamaTakTersimpan = false; 
+          hapusFotoLamaTakTersimpan = false;
         });
       } else {
         setState(() {
@@ -64,6 +66,64 @@ class _EditToppingPageState extends State<EditToppingPage> {
         });
       }
     }
+  }
+
+  void showImagePickerOption() {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(20),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(25),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "Pilih Sumber Foto",
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            ListTile(
+              leading: const Icon(
+                Icons.camera_alt,
+                color: Color(0xFFC62828),
+              ),
+              title: Text(
+                "Ambil dari Kamera",
+                style: GoogleFonts.poppins(),
+              ),
+              onTap: () {
+                Get.back();
+                pickImage(ImageSource.camera);
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(
+                Icons.photo_library,
+                color: Color(0xFFC62828),
+              ),
+              title: Text(
+                "Pilih dari Galeri",
+                style: GoogleFonts.poppins(),
+              ),
+              onTap: () {
+                Get.back();
+                pickImage(ImageSource.gallery);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void aksiTombolHapus() {
@@ -111,7 +171,7 @@ class _EditToppingPageState extends State<EditToppingPage> {
                     child: Stack(
                       children: [
                         GestureDetector(
-                          onTap: pickImage,
+                          onTap: showImagePickerOption,
                           child: Container(
                             width: 140,
                             height: 140,
@@ -128,7 +188,7 @@ class _EditToppingPageState extends State<EditToppingPage> {
                           bottom: 0,
                           right: 0,
                           child: GestureDetector(
-                            onTap: pickImage,
+                            onTap: showImagePickerOption,
                             child: Container(
                               padding: const EdgeInsets.all(8),
                               decoration: const BoxDecoration(color: Color(0xFFC62828), shape: BoxShape.circle),

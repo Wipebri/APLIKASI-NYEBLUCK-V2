@@ -3,8 +3,10 @@ import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'topping_controller.dart';
+import '../services/notification_service.dart';
 import '../pages/kasir_page.dart';
 import '../pages/nota_preview_page.dart';
+
 
 class KasirController extends GetxController {
   final supabase = Supabase.instance.client;
@@ -126,6 +128,11 @@ class KasirController extends GetxController {
       }
 
       final String kasirEmail = supabase.auth.currentUser?.email?.split('@')[0] ?? "Kasir";
+      
+      await NotificationService.showTransactionNotification(
+      total: totalBayar,
+      jumlahItem: totalItems,
+      );
 
       _showSuccessDialog(
         transactionData: transactionData,

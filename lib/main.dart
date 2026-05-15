@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'controllers/auth_controller.dart';
 import 'controllers/topping_controller.dart';
 import 'package:aplikasi_nyebluck/pages/splash_screen.dart';
+import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,10 +16,12 @@ void main() async {
     url: dotenv.env['SUPABASE_URL']!,
     anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
+  await NotificationService.init();
+  await NotificationService.requestPermission();
 
   Get.put(AuthController(), permanent: true);
   Get.put(ToppingController(), permanent: true);
-
+  
   runApp(const MyApp());
 }
 
